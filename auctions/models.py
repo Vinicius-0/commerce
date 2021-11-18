@@ -11,10 +11,10 @@ class Listing(models.Model):
     creator = models.CharField(max_length=64)
     title = models.CharField(max_length=64)
     category = models.CharField(max_length=64)
-    description = models.TextField(max_length=512, null=True)
+    description = models.TextField(max_length=512, default='')
     initialBid = models.FloatField()
     actualBid = models.FloatField(null=True)
-    image = models.TextField(max_length=512, null=True)
+    image = models.CharField(max_length=256, null=True)
     isActive = models.BooleanField(default=True)
     dateTime = models.DateTimeField(auto_now_add=True)
 

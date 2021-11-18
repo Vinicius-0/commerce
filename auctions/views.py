@@ -3,13 +3,15 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from django import forms
 
 from .models import Listing, User
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    items = Listing.objects.all()
+    return render(request, "auctions/index.html", {
+        'items': items
+    })
 
 
 def create(request):
@@ -21,10 +23,18 @@ def create(request):
         item.description = request.POST.get('description')
         item.initialBid = request.POST.get('initialBid')
         item.image = request.POST.get('image') if request.POST.get(
-            'image') else 'images/noImage.png'
+            'image') else 'https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg'
         item.save()
-        return render(request, "auctions/index.html")
+        return HttpResponseRedirect(reverse("index"))
+
     return render(request, "auctions/create.html")
+
+
+def handle_uploaded_file(f):
+    destination = open('static/images/images/', 'wb+')
+    for chunk in f.chunks():
+        destination.write(chunk)
+    destination.close()
 
 
 def login_view(request):

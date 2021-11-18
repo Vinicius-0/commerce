@@ -3,35 +3,37 @@
 {% block body %}
     <h2>Create Listing</h2>
 
-    <form action="{% url 'create' %}" method="post" >
+    <form action="{% url 'create' %}" method="post">
         {% csrf_token %}
         <form>
             <div class="mb-3">
-              <input type="text" class="form-control"  placeholder="Title" name="title">
+              <input type="text" class="form-control"  placeholder="Title" name="title" required>
             </div>
             <div class="mb-3">
-              <input type="text" class="form-control" placeholder="Description" name="description">
+              <textarea type="text-field" class="form-control" placeholder="Description" name="description" rows="3" required></textarea>
             </div>
             <div class="mb-3">
-              <input type="number" class="form-control" placeholder="Initial bid" name="initialBid">
+              <input type="number" class="form-control" placeholder="Initial bid" name="initialBid" required>
             </div>
             <div class="mb-3">
-                <select class="form-select" name='category'>
-                    <option value="" selected disabled hidden>Choose one</option>
-                    <option>Arts</option>
-                    <option>Automotive</option>
-                    <option>Books</option>
-                    <option>Eletronics</option>
-                    <option>Fashion</option>
-                    <option>Home and Kitchen</option>
-                    <option>Toys and Games</option>
-                </select>
-              </div>
-              <div class="custom-file">
-                <input type="file" class="custom-file-input" id="customFile" name="image">
-                <label class="custom-file-label" for="customFile">Choose file (Optional)</label>
-              </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </form>
+              <select class="form-select" name='category' required>
+                <option value="" selected disabled hidden>Choose one</option>
+                <option>Arts</option>
+                <option>Automotive</option>
+                <option>Books</option>
+                <option>Eletronics</option>
+                <option>Fashion</option>
+                <option>Home and Kitchen</option>
+                <option>Toys and Games</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <input type="text" class="form-control" placeholder="Image url (Optional)" name="image">
+            </div>
+              
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
     </form>
+
+    
 {% endblock %}
