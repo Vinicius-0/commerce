@@ -1,19 +1,69 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
 from .models import Listing, User
 
 
 def index(request):
-    items = Listing.objects.all()
+    category = request.GET.get('category', '')
+    if category:
+        items = Listing.objects.filter(
+            isActive=True, category=category)
+        return render(request, "auctions/index.html", {
+            'items': items,
+            'category': category
+        })
+    else:
+        items = Listing.objects.filter(isActive=True)
+        return render(request, "auctions/index.html", {
+            'items': items,
+        })
+
+
+@login_required(login_url='/login')
+def watchlist(request):
+    category = request.GET.get('category', '')
+    if category:
+        itemsCategory = Listing.objects.filter(
+            isActive=True, category=category)
+    else:
+        itemsCategory = Listing.objects.filter(isActive=True)
+    itemsWatched = request.user.watchedListings.all()
+    items = set(itemsCategory) & set(itemsWatched)
     return render(request, "auctions/index.html", {
-        'items': items
+        'watchlist': True,
+        'items': items,
+        'category': category
     })
 
 
+@login_required(login_url='/login')
+def changeWatchList(request, item_id):
+    item = Listing.objects.get(id=item_id)
+    if request.user in item.watchers.all():
+        item.watchers.remove(request.user)
+    else:
+        item.watchers.add(request.user)
+    return redirect('listing', item_id)
+
+
+def listing(request, item_id):
+    item = Listing.objects.get(id=item_id)
+    if request.user in item.watchers.all():
+        itemIsWatched = True
+    else:
+        itemIsWatched = False
+    return render(request, "auctions/listing.html", {
+        'item': item,
+        'watched': itemIsWatched
+    })
+
+
+@login_required(login_url='/login')
 def create(request):
     if request.method == 'POST':
         item = Listing()
@@ -28,13 +78,6 @@ def create(request):
         return HttpResponseRedirect(reverse("index"))
 
     return render(request, "auctions/create.html")
-
-
-def handle_uploaded_file(f):
-    destination = open('static/images/images/', 'wb+')
-    for chunk in f.chunks():
-        destination.write(chunk)
-    destination.close()
 
 
 def login_view(request):

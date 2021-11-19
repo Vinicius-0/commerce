@@ -17,6 +17,11 @@ class Listing(models.Model):
     image = models.CharField(max_length=256, null=True)
     isActive = models.BooleanField(default=True)
     dateTime = models.DateTimeField(auto_now_add=True)
+    watchers = models.ManyToManyField(
+        User, blank=True, related_name='watchedListings')
+
+    def __str__(self):
+        return f"{self.title} - {self.category}"
 
 
 class Bid(models.Model):

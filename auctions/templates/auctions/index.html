@@ -1,22 +1,51 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
 
-    <div style='display: flex; flex-flow: row wrap; padding: 50px'>
-        {% for item in items %}
-        <div class="card" style="width: 30%; margin: 20px; ">
-            <img src="{{item.image}}" class="card-img-top" alt="image" style="height: 300px; width: auto;">
-            <div class="card-body">
-                <h5 class="card-title">{{item.title}}</h5>
-                <h6 class="card-subtitle mb-2 text-muted">${{item.initialBid}}</h6>
-                <p class="card-text">{{item.description}}</p>
-                <a href="#" class="btn btn-primary">See details</a>
-            </div>
+    <div style="display:flex; flex-direction: row;">
+        {% if watchlist %}
+        <h2 style="margin-right: auto;">My WatchList</h2>
+        {% else %}
+        <h2 style="margin-right: auto;">Active Listings</h2>
+        {% endif %}
+        <form>
+        <select name="category" id="category" class="custom-select" onchange="submit()">
+            {% if category %} 
+                <option value="">{{category}}</option>
+            {% else %}
+                <option value="">Filter by categories</option>
+            {% endif %}
+            <option value="">All categories</option>
+            <option value="Arts" id="Arts">Arts</option>
+            <option value="Automotive" id="Automotive">Automotive</option>
+            <option value="Books" id="Books">Books</option>
+            <option value="Eletronics" id="Eletronics">Eletronics</option>
+            <option value="Fashion" id="Fashion">Fashion</option>
+            <option value="Home and Kitchen" id="Home and Kitchen">Home and Kitchen</option>
+            <option value="Toys and Games" id="Toys and Games">Toys and Games</option>
+        </select>
+    </form>
+
+</div>
+
+    {% if items %}
+        <div style='display: flex; padding: 50px; flex-wrap:wrap;'>
+            {% for item in items %}
+            <div class="card" style="width: 30%; margin: 20px; min-width: 300px;">
+                <img src="{{item.image}}" class="card-img-top" alt="image" style="height: 300px; width: auto;">
+                <div class="card-body">
+                    <h5 class="card-title">{{item.title}}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">${{item.initialBid}}</h6>
+                    <p class="card-text" style="white-space: pre-wrap;">{{item.description}}</p>
+                    <a href="{% url 'listing' item.id %}" class="btn btn-primary">See details</a>
+                </div>
             <div class="card-footer text-muted">
-                {{item.dateTime}}
-            </div>
-            </div>
-        {% endfor %}
+                    Created in {{item.dateTime}}
+                </div>
+        </div>
+            {% endfor %}
+    {% else %}
+        <h4 style="margin-top: 50px;">Nothing here :(</h4>
+    {% endif %} 
     </div>
 {% endblock %}

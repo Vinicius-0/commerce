@@ -7,13 +7,13 @@
         {% csrf_token %}
         <form>
             <div class="mb-3">
-              <input type="text" class="form-control"  placeholder="Title" name="title" required>
+              <input type="text" class="form-control"  placeholder="Title" name="title" maxlength="25" required>
             </div>
             <div class="mb-3">
-              <textarea type="text-field" class="form-control" placeholder="Description" name="description" rows="3" required></textarea>
+              <textarea type="text-field" class="form-control" placeholder="Description" name="description" rows="3" maxlength="512" required></textarea>
             </div>
             <div class="mb-3">
-              <input type="number" class="form-control" placeholder="Initial bid" name="initialBid" required>
+              <input type="number" class="form-control" placeholder="Initial bid" name="initialBid" maxlength="9" required>
             </div>
             <div class="mb-3">
               <select class="form-select" name='category' required>
