@@ -7,6 +7,9 @@ from . import views
 urlpatterns = [
     path("", views.index, name="index"),
     path("watchlist", views.watchlist, name="watchlist"),
+    path("makeBid/<int:item_id>", views.makeBid, name="makeBid"),
+    path("newComment/<int:item_id>", views.newComment, name="newComment"),
+    path("closeListing/<int:item_id>", views.closeListing, name="closeListing"),
     path("changeWatchList/<int:item_id>",
          views.changeWatchList, name="changeWatchList"),
     path("create", views.create, name="create"),

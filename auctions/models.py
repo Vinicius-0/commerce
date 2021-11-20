@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models.deletion import CASCADE
 from django.db.models.fields import DateField, IntegerField
 
 
@@ -13,26 +14,27 @@ class Listing(models.Model):
     category = models.CharField(max_length=64)
     description = models.TextField(max_length=512, default='')
     initialBid = models.FloatField()
-    actualBid = models.FloatField(null=True)
+    actualBid = models.FloatField(default=0)
     image = models.CharField(max_length=256, null=True)
     isActive = models.BooleanField(default=True)
     dateTime = models.DateTimeField(auto_now_add=True)
     watchers = models.ManyToManyField(
         User, blank=True, related_name='watchedListings')
+    winner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
-        return f"{self.title} - {self.category}"
+        return f"{self.title} - {self.category} - {self.isActive} - {self.id} - {self.winner}"
 
 
 class Bid(models.Model):
-    user = models.CharField(max_length=64, default="")
-    title = models.CharField(max_length=64, default="")
-    listingID = models.IntegerField(default="")
-    bid = models.IntegerField(default="")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    listingID = models.ForeignKey(Listing, on_delete=models.CASCADE)
+    offer = models.FloatField(default="")
+    dateTime = models.DateTimeField(auto_now_add=True, null=True)
 
 
 class Comment(models.Model):
-    user = models.CharField(max_length=64)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     comment = models.CharField(max_length=512, default="")
-    listingID = models.IntegerField(default="")
+    listingID = models.ForeignKey(Listing, on_delete=models.CASCADE)
     dateTime = models.DateTimeField(auto_now_add=True)

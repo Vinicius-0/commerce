@@ -5,7 +5,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
-from .models import Listing, User
+from .models import Comment, Listing, User, Bid
 
 
 def index(request):
@@ -28,10 +28,9 @@ def index(request):
 def watchlist(request):
     category = request.GET.get('category', '')
     if category:
-        itemsCategory = Listing.objects.filter(
-            isActive=True, category=category)
+        itemsCategory = Listing.objects.filter(category=category)
     else:
-        itemsCategory = Listing.objects.filter(isActive=True)
+        itemsCategory = Listing.objects.filter()
     itemsWatched = request.user.watchedListings.all()
     items = set(itemsCategory) & set(itemsWatched)
     return render(request, "auctions/index.html", {
@@ -51,15 +50,59 @@ def changeWatchList(request, item_id):
     return redirect('listing', item_id)
 
 
+@login_required(login_url='/login')
+def closeListing(request, item_id):
+    item = Listing.objects.get(id=item_id)
+    if request.user.username == item.creator:
+        item.isActive = False
+        item.winner = Bid.objects.filter(
+            listingID=item_id).last().user
+        item.save()
+    return redirect('listing', item_id)
+
+
+@login_required(login_url='/login')
+def makeBid(request, item_id):
+    item = Listing.objects.get(id=item_id)
+    bid = float(request.GET.get('bid'))
+    if bid >= item.initialBid and (item.actualBid == 0 or bid > item.actualBid):
+        item.actualBid = bid
+        item.save()
+        bidItem = Bid()
+        bidItem.user = request.user
+        bidItem.offer = bid
+        bidItem.listingID = item
+        bidItem.save()
+        if request.user not in item.watchers.all():
+            item.watchers.add(request.user)
+        return HttpResponseRedirect(reverse('listing', args=[item_id]))
+    else:
+        actual = item.actualBid if item.actualBid > 0 else item.initialBid
+        return render(request, "auctions/listing.html", {
+            'item': item,
+            'watched': request.user in item.watchers.all(),
+            'error': f'Your bid must be bigger than {actual}'
+        })
+
+
+@login_required(login_url='/login')
+def newComment(request, item_id):
+    item = Listing.objects.get(id=item_id)
+    newComment = Comment()
+    newComment.user = request.user
+    newComment.comment = request.GET.get('comment')
+    newComment.listingID = item
+    newComment.save()
+    return redirect('listing', item_id)
+
+
 def listing(request, item_id):
     item = Listing.objects.get(id=item_id)
-    if request.user in item.watchers.all():
-        itemIsWatched = True
-    else:
-        itemIsWatched = False
+    comments = Comment.objects.filter(listingID=item_id).order_by('-dateTime')
     return render(request, "auctions/listing.html", {
         'item': item,
-        'watched': itemIsWatched
+        'watched': request.user in item.watchers.all(),
+        'comments': comments
     })
 
 
@@ -82,7 +125,6 @@ def create(request):
 
 def login_view(request):
     if request.method == "POST":
-
         # Attempt to sign user in
         username = request.POST["username"]
         password = request.POST["password"]

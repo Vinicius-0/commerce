@@ -35,7 +35,11 @@
                 <img src="{{item.image}}" class="card-img-top" alt="image" style="height: 300px; width: auto;">
                 <div class="card-body">
                     <h5 class="card-title">{{item.title}}</h5>
+                    {% if item.actualBid %}
+                    <h6 class="card-subtitle mb-2 text-muted">${{item.actualBid}}</h6>
+                    {% else %}
                     <h6 class="card-subtitle mb-2 text-muted">${{item.initialBid}}</h6>
+                    {% endif %}
                     <p class="card-text" style="white-space: pre-wrap;">{{item.description}}</p>
                     <a href="{% url 'listing' item.id %}" class="btn btn-primary">See details</a>
                 </div>
